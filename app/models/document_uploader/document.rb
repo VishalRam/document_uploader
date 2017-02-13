@@ -21,6 +21,8 @@
 
 class DocumentUploader::Document < ActiveRecord::Base
 	
+	belongs_to :documentable, :polymorphic => true
+	
 	self.table_name="documents"
 	validates :documentable_id, :documentable_type, presence: true
 
