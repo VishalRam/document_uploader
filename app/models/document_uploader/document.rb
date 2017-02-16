@@ -26,24 +26,18 @@ class DocumentUploader::Document < ActiveRecord::Base
 	self.table_name="documents"
 	validates :documentable_id, :documentable_type, presence: true
 
-	if Rails.env.development?
-  	has_attached_file :attachment
-	else
+	config = DocumentUploader.configuration
+	if config.storage == "local" || config.storage.nil?
+  		has_attached_file :attachment
+	elsif config.storage == "s3"
   	has_attached_file :attachment,
-                    storage: :s3,
-                    s3_region: "s3-ap-south-1.amazonaws.com",
-                    s3_credentials: Settings.s3_settings.to_h,
-                    path: ":environment/:class/:attachment/:documentable_type/:documentable_id/:category/:style/:filename"
+                   storage: :s3,
+                   s3_region: config.s3_region,
+                   s3_credentials: config.s3_credentials.to_h,
+                   path: config.path
 	end
 	validates_attachment :attachment, :presence => true, :content_type => {:content_type => ["image/jpeg", "image/jpg", "image/gif", "image/png", "application/pdf"]}, :size => {:in => 0..10.megabyte}
 	before_post_process :rename_doc
-
-
-	# enum category: {registration: 0, road_tax: 1, pollution: 2, insurance: 3,
-  #                all_india_permit: 4, authorization: 5, endorsement_form: 6, rent_a_cab_license: 7, amc: 8,
-  #                estimate: 10, approve_estimate: 11, invoice: 12, approve_invoice: 13, survey: 14, approve_survey: 15, approve_final_survey: 16, fir: 17, driver_DL: 18, car_image: 19, other: 20}
-	# enum s3_status: {sync_pending: 0, successful: 1}
-	# enum file_type: {jpeg: 0, pdf: 1}
 
 
 	Paperclip.interpolates :documentable_type do |attachment, style|
