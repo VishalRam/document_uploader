@@ -1,6 +1,6 @@
 # DocumentUploader
 
-
+[![Code Climate](https://codeclimate.com/github/VishalRam/document_uploader/badges/gpa.svg)](https://codeclimate.com/github/VishalRam/document_uploader)
 
 ## Installation
 
