@@ -33,11 +33,10 @@ class DocumentUploader::Document < ActiveRecord::Base
   	has_attached_file :attachment,
                    storage: :s3,
                    s3_region: config.s3_region,
-                   s3_credentials: config.s3_credentials.to_h,
+                   s3_credentials: config.s3_credentials,
                    path: config.path
 	end
 	validates_attachment :attachment, :presence => true, :content_type => {:content_type => ["image/jpeg", "image/jpg", "image/gif", "image/png", "application/pdf"]}, :size => {:in => 0..10.megabyte}
-	before_post_process :rename_doc
 
 
 	Paperclip.interpolates :documentable_type do |attachment, style|
@@ -50,11 +49,7 @@ class DocumentUploader::Document < ActiveRecord::Base
   	attachment.instance.category
 	end
 	Paperclip.interpolates :environment do |attachment, style|
-  	Settings.s3_environment || Rails.env
+  	Rails.env
 	end
 
-
-	def rename_doc
-		self.attachment.instance_write :name, "#{Time.now.to_i}_#{self.attachment_file_name.gsub(/\s/, '_')}"
-	end
 end
